@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, useAnimation, type Variants } from "framer-motion";
-import type { SVGAttributes } from "react";
+import { motion, useAnimation, type Variants, type SVGMotionProps } from "framer-motion";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,8 +9,8 @@ export interface DownloadIconHandle {
   stopAnimation: () => void;
 }
 
-interface DownloadIconProps extends SVGAttributes<SVGSVGElement> {
-  size?: number;
+interface DownloadIconProps extends SVGMotionProps<SVGSVGElement> {
+  size?: number | string;
 }
 
 const ARROW_VARIANTS: Variants = {
@@ -44,7 +43,7 @@ const DownloadIcon = forwardRef<DownloadIconHandle, DownloadIconProps>(
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<SVGSVGElement>) => {
         if (isControlledRef.current) {
-          onMouseEnter?.(e);
+          (onMouseEnter as any)?.(e);
         } else {
           controls.start("animate");
         }
@@ -55,7 +54,7 @@ const DownloadIcon = forwardRef<DownloadIconHandle, DownloadIconProps>(
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<SVGSVGElement>) => {
         if (isControlledRef.current) {
-          onMouseLeave?.(e);
+          (onMouseLeave as any)?.(e);
         } else {
           controls.start("normal");
         }
@@ -65,18 +64,21 @@ const DownloadIcon = forwardRef<DownloadIconHandle, DownloadIconProps>(
 
     return (
       <motion.svg
-        className={cn("cursor-pointer select-none transition-colors duration-200", className)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
         height={size}
+        viewBox="0 0 24 24"
+        fill="none"
         stroke="currentColor"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-        width={size}
-        xmlns="http://www.w3.org/2000/svg"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={cn(
+          "cursor-pointer select-none transition-colors duration-200",
+          className
+        )}
         {...props}
       >
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

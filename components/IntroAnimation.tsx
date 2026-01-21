@@ -124,13 +124,13 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
       {/* Background Wrapper - This will slide up */}
       <div 
         ref={bgRef}
-        className="absolute inset-0 bg-white"
+        className="absolute inset-0 bg-zinc-950"
         style={{
-          background: "linear-gradient(-45deg, #f0f9ff, #e0f2fe, #dbeafe, #ffffff)",
+          background: "linear-gradient(-45deg, #09090b, #18181b, #09090b, #171717, #09090b)",
           backgroundSize: "400% 400%",
         }}
       >
-        <div className="absolute inset-0 opacity-30 blur-3xl bg-gradient-to-tr from-blue-100 to-white" />
+        <div className="absolute inset-0 opacity-30 blur-3xl bg-gradient-to-tr from-blue-900/20 to-zinc-950" />
       </div>
       
       <div className="relative z-10 flex flex-col items-center gap-8 pointer-events-auto">
@@ -144,7 +144,7 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
               alt="Drivvize Logo" 
               width={224} 
               height={224}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain grayscale invert"
               priority
             />
         </div>
@@ -153,14 +153,14 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
         <div className="flex flex-col items-center gap-4">
           <div
             ref={textRef}
-            className="text-5xl sm:text-7xl font-black text-zinc-900 tracking-[0.25em] z-20"
+            className="text-5xl sm:text-7xl font-black text-zinc-50 tracking-[0.25em] z-20"
             style={{ perspective: "1000px" }}
           >
             DRIVVIZE
           </div>
           <div 
             ref={subtitleRef}
-            className="text-lg sm:text-xl font-semibold text-blue-600/80 tracking-[0.4em] uppercase opacity-0"
+            className="text-lg sm:text-xl font-semibold text-blue-400/80 tracking-[0.4em] uppercase opacity-0"
           >
             Automotive Functional Safety
           </div>

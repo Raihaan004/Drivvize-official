@@ -66,7 +66,7 @@ const FloatingDockMobile = ({
                 <Link
                   href={item.href}
                   key={item.title}
-                  className="h-10 w-10 rounded-full bg-white/70 backdrop-blur-md border border-white/40 flex items-center justify-center shadow-lg"
+                  className="h-10 w-10 rounded-full bg-zinc-900/80 backdrop-blur-md border border-zinc-700/50 flex items-center justify-center shadow-lg"
                 >
                   <div className="h-6 w-6">{item.icon}</div>
                 </Link>
@@ -77,9 +77,9 @@ const FloatingDockMobile = ({
       </AnimatePresence>
       <button
         onClick={() => setOpen(!open)}
-        className="h-10 w-10 rounded-full bg-white/70 backdrop-blur-md border border-white/40 flex items-center justify-center shadow-lg"
+        className="h-10 w-10 rounded-full bg-zinc-900/80 backdrop-blur-md border border-zinc-700/50 flex items-center justify-center shadow-lg"
       >
-        <div className="h-5 w-5 text-slate-500">
+        <div className="h-5 w-5 text-zinc-400">
            {/* Hamburger icon */}
            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
         </div>
@@ -115,7 +115,7 @@ const FloatingDockDesktop = ({
       <motion.div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="relative mx-auto flex h-16 gap-4 items-end rounded-[1.25rem] bg-white/40 backdrop-blur-2xl border border-white/50 px-4 pb-3 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]"
+        className="relative mx-auto flex h-16 gap-4 items-end rounded-[1.25rem] bg-zinc-900/60 backdrop-blur-2xl border border-white/10 px-4 pb-3 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
       >
         {items.map((item) => (
           <IconContainer mouseX={mouseX} key={item.title} {...item} />

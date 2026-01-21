@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, useAnimation, type Variants } from "framer-motion";
-import type { SVGAttributes } from "react";
+import { motion, useAnimation, type Variants, type SVGMotionProps } from "framer-motion";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,8 +9,8 @@ export interface PartyPopperIconHandle {
   stopAnimation: () => void;
 }
 
-interface PartyPopperIconProps extends SVGAttributes<SVGSVGElement> {
-  size?: number;
+interface PartyPopperIconProps extends SVGMotionProps<SVGSVGElement> {
+  size?: number | string;
 }
 
 const LINES_VARIANTS: Variants = {
@@ -59,7 +58,7 @@ const PartyPopperIcon = forwardRef<PartyPopperIconHandle, PartyPopperIconProps>(
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<SVGSVGElement>) => {
         if (isControlledRef.current) {
-          onMouseEnter?.(e);
+          (onMouseEnter as any)?.(e);
         } else {
           controls.start("animate");
         }
@@ -70,7 +69,7 @@ const PartyPopperIcon = forwardRef<PartyPopperIconHandle, PartyPopperIconProps>(
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<SVGSVGElement>) => {
         if (isControlledRef.current) {
-          onMouseLeave?.(e);
+          (onMouseLeave as any)?.(e);
         } else {
           controls.start("normal");
         }
@@ -80,18 +79,21 @@ const PartyPopperIcon = forwardRef<PartyPopperIconHandle, PartyPopperIconProps>(
 
     return (
       <motion.svg
-        className={cn("cursor-pointer select-none transition-colors duration-200", className)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
         height={size}
+        viewBox="0 0 24 24"
+        fill="none"
         stroke="currentColor"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-        width={size}
-        xmlns="http://www.w3.org/2000/svg"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={cn(
+          "cursor-pointer select-none transition-colors duration-200",
+          className
+        )}
         {...props}
       >
         <motion.path

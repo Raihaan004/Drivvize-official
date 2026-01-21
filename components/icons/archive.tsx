@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, useAnimation, type Variants } from "framer-motion";
-import type { SVGProps } from "react";
+import { motion, useAnimation, type Variants, type SVGMotionProps } from "framer-motion";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,8 +9,8 @@ export interface ArchiveIconHandle {
   stopAnimation: () => void;
 }
 
-interface ArchiveIconProps extends SVGProps<SVGSVGElement> {
-  size?: number;
+interface ArchiveIconProps extends SVGMotionProps<SVGSVGElement> {
+  size?: number | string;
 }
 
 const RECT_VARIANTS: Variants = {
@@ -62,7 +61,7 @@ const ArchiveIcon = forwardRef<ArchiveIconHandle, ArchiveIconProps>(
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<SVGSVGElement>) => {
         if (isControlledRef.current) {
-          onMouseEnter?.(e);
+          (onMouseEnter as any)?.(e);
         } else {
           controls.start("animate");
         }
@@ -73,7 +72,7 @@ const ArchiveIcon = forwardRef<ArchiveIconHandle, ArchiveIconProps>(
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<SVGSVGElement>) => {
         if (isControlledRef.current) {
-          onMouseLeave?.(e);
+          (onMouseLeave as any)?.(e);
         } else {
           controls.start("normal");
         }
@@ -83,19 +82,22 @@ const ArchiveIcon = forwardRef<ArchiveIconHandle, ArchiveIconProps>(
 
     return (
       <motion.svg
-        className={cn("cursor-pointer select-none transition-colors duration-200", className)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
         height={size}
+        viewBox="0 0 24 24"
+        fill="none"
         stroke="currentColor"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-        width={size}
-        xmlns="http://www.w3.org/2000/svg"
-        {...(props as any)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={cn(
+          "cursor-pointer select-none transition-colors duration-200",
+          className
+        )}
+        {...props}
       >
         <motion.rect
           animate={controls}

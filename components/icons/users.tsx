@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, useAnimation, type Variants } from "framer-motion";
-import type { SVGProps } from "react";
+import { motion, useAnimation, type Variants, type SVGMotionProps } from "framer-motion";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,8 +9,8 @@ export interface UsersIconHandle {
   stopAnimation: () => void;
 }
 
-interface UsersIconProps extends SVGProps<SVGSVGElement> {
-  size?: number;
+interface UsersIconProps extends SVGMotionProps<SVGSVGElement> {
+  size?: number | string;
 }
 
 const PATH_VARIANTS: Variants = {
@@ -51,7 +50,7 @@ const UsersIcon = forwardRef<UsersIconHandle, UsersIconProps>(
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<SVGSVGElement>) => {
         if (isControlledRef.current) {
-          onMouseEnter?.(e);
+          (onMouseEnter as any)?.(e);
         } else {
           controls.start("animate");
         }
@@ -62,7 +61,7 @@ const UsersIcon = forwardRef<UsersIconHandle, UsersIconProps>(
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<SVGSVGElement>) => {
         if (isControlledRef.current) {
-          onMouseLeave?.(e);
+          (onMouseLeave as any)?.(e);
         } else {
           controls.start("normal");
         }
@@ -72,19 +71,22 @@ const UsersIcon = forwardRef<UsersIconHandle, UsersIconProps>(
 
     return (
       <motion.svg
-        className={cn("cursor-pointer select-none transition-colors duration-200", className)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
         height={size}
+        viewBox="0 0 24 24"
+        fill="none"
         stroke="currentColor"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-        width={size}
-        xmlns="http://www.w3.org/2000/svg"
-        {...(props as any)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={cn(
+          "cursor-pointer select-none transition-colors duration-200",
+          className
+        )}
+        {...props}
       >
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />

@@ -2,7 +2,9 @@
 
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
+import { VehicleShowcase } from "@/components/ui/vehicle-showcase";
 import { FloatingDock } from "@/components/ui/floating-dock";
 import { HomeIcon } from "@/components/icons/home";
 import { UsersIcon } from "@/components/icons/users";
@@ -12,8 +14,13 @@ import { FileTextIcon } from "@/components/icons/file-text";
 import { DownloadIcon } from "@/components/icons/download";
 import { PartyPopperIcon } from "@/components/icons/party-popper";
 import { MailCheckIcon } from "@/components/icons/mail-check";
+import { Cover } from "@/components/ui/cover";
+import { EncryptedText } from "@/components/ui/encrypted-text";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
-export default function LandingPage() {
+gsap.registerPlugin(ScrollTrigger);
+
+export default function LandingPage({ isIntroFinished = true }: { isIntroFinished?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const bgOrb1Ref = useRef<HTMLDivElement>(null);
@@ -95,35 +102,86 @@ export default function LandingPage() {
         ease: "power3.out",
         delay: 4.2,
       });
+
+      // Coordinator Timeline for the scene transition
+      const sceneTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "+=45%", // Balanced scroll distance
+          scrub: 0.5, // Faster feedback to avoid stuck blur
+          pin: true,
+          pinSpacing: false,
+        }
+      });
+
+      sceneTl
+        .to(heroRef.current, {
+          opacity: 0,
+          filter: "blur(50px)",
+          y: -80,
+          duration: 1
+        })
+        .to(".vehicle-overlay", {
+          opacity: 0,
+          duration: 1
+        }, "-=1")
+        .to(".vehicle-bg", {
+          opacity: 1,
+          duration: 1
+        }, "-=1")
+        .fromTo(".vision-section", 
+          { 
+            y: 150, 
+            opacity: 0, 
+            filter: "blur(20px)" 
+          },
+          {
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 1.2,
+            ease: "none"
+          }, 
+          "-=0.8"
+        );
+
+
     }, containerRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-500/30 overflow-hidden">
+    <div ref={containerRef} className="bg-zinc-950 text-zinc-50 selection:bg-blue-500/30">
       {/* Animated Gradient Background */}
       <div 
-        className="animated-bg fixed inset-0 -z-10"
+        className="animated-bg fixed inset-0 -z-20"
         style={{
-          background: "linear-gradient(-45deg, #f0f9ff, #e0f2fe, #dbeafe, #f8fafc, #e0f2fe)",
+          background: "linear-gradient(-45deg, #09090b, #18181b, #09090b, #171717, #09090b)",
           backgroundSize: "400% 400%",
         }}
       />
+      
+      {/* Vehicle Background Layer */}
+      <div className="fixed inset-0 top-0 h-screen w-full -z-10 bg-zinc-900/50 vehicle-showcase-container">
+        <VehicleShowcase className="h-full w-full object-cover opacity-30 vehicle-bg" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent vehicle-overlay" />
+      </div>
 
       {/* Floating Background Orbs */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div
           ref={bgOrb1Ref}
-          className="absolute top-20 left-10 w-80 h-80 bg-blue-300/20 rounded-full blur-[120px] pointer-events-none"
+          className="absolute top-20 left-10 w-80 h-80 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"
         />
         <div
           ref={bgOrb2Ref}
-          className="absolute top-40 -right-20 w-96 h-96 bg-indigo-300/15 rounded-full blur-[150px] pointer-events-none"
+          className="absolute top-40 -right-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-[150px] pointer-events-none"
         />
         <div
           ref={bgOrb3Ref}
-          className="absolute bottom-20 left-1/3 w-72 h-72 bg-blue-200/20 rounded-full blur-[130px] pointer-events-none"
+          className="absolute bottom-20 left-1/3 w-72 h-72 bg-blue-500/10 rounded-full blur-[130px] pointer-events-none"
         />
       </div>
 
@@ -131,7 +189,7 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full z-40 px-8 py-6 pointer-events-none">
         <div className="flex items-center nav-brand pointer-events-auto">
           <div className="relative h-14 w-56 overflow-hidden">
-            <Image src="/Drivvize_logo.jpeg" alt="Logo" fill className="object-contain" />
+            <Image src="/Drivvize_logo.jpeg" alt="Logo" fill className="object-contain grayscale invert" />
           </div>
         </div>
       </header>
@@ -142,37 +200,37 @@ export default function LandingPage() {
           items={[
             {
               title: "Home",
-              icon: <HomeIcon className="h-full w-full text-blue-600" size="100%" />,
+              icon: <HomeIcon className="h-full w-full text-blue-500" size="100%" />,
               href: "#",
             },
             {
               title: "About Us",
-              icon: <UsersIcon className="h-full w-full text-slate-600" size="100%" />,
+              icon: <UsersIcon className="h-full w-full text-zinc-400" size="100%" />,
               href: "#",
             },
             {
               title: "FAQs",
-              icon: <CircleHelpIcon className="h-full w-full text-slate-600" size="100%" />,
+              icon: <CircleHelpIcon className="h-full w-full text-zinc-400" size="100%" />,
               href: "#",
             },
             {
               title: "Services",
-              icon: <ArchiveIcon className="h-full w-full text-slate-600" size="100%" />,
+              icon: <ArchiveIcon className="h-full w-full text-zinc-400" size="100%" />,
               href: "#",
             },
             {
               title: "Blog",
-              icon: <FileTextIcon className="h-full w-full text-slate-600" size="100%" />,
+              icon: <FileTextIcon className="h-full w-full text-zinc-400" size="100%" />,
               href: "#",
             },
             {
               title: "Downloads",
-              icon: <DownloadIcon className="h-full w-full text-slate-600" size="100%" />,
+              icon: <DownloadIcon className="h-full w-full text-zinc-400" size="100%" />,
               href: "#",
             },
             {
               title: "Careers",
-              icon: <PartyPopperIcon className="h-full w-full text-slate-600" size="100%" />,
+              icon: <PartyPopperIcon className="h-full w-full text-zinc-400" size="100%" />,
               href: "#",
             },
             {
@@ -188,61 +246,102 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Hero Section */}
-      <main className="relative pt-48 pb-32 px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <div className="absolute top-20 -left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-40 -right-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-[150px] pointer-events-none" />
+      {/* Sections Container */}
+      <div className="relative">
+        {/* Hero Section */}
+        <section className="hero-section relative h-screen flex flex-col items-center justify-center px-8 text-center overflow-hidden z-20">
+          <div className="absolute top-20 -left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute top-40 -right-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-[150px] pointer-events-none" />
 
-        <div ref={heroRef} className="relative z-10 space-y-10">
-          <div className="inline-block px-4 py-1.5 rounded-full border border-blue-100 bg-blue-50/50 text-blue-600 text-xs font-bold uppercase tracking-widest hero-text">
-            Automotive Functional Safety Experts
-          </div>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight hero-text lg:max-w-5xl mx-auto leading-[1.1] text-slate-900">
-            Engineered for <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Compliance</span> & Safety.
-          </h1>
-          <p className="text-slate-600 text-lg md:text-2xl max-w-3xl mx-auto hero-text leading-relaxed font-medium">
-            We provide expert Functional Safety (ISO 26262) and Cyber Security (ISO 21434) services for the next generation of software-defined vehicles.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-5 justify-center hero-text pt-6">
-            <button className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all shadow-xl hover:-translate-y-1">
-              Explore Our Services
-            </button>
-            <button className="px-10 py-5 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold hover:bg-slate-50 transition-all shadow-sm">
-              View Case Studies
-            </button>
-          </div>
-        </div>
-
-        {/* Feature Grid Reveal */}
-        <section className="mt-40 grid grid-cols-1 md:grid-cols-3 gap-8 w-full hero-text">
-          {[
-            { title: "ISO 26262 Compliance", desc: "End-to-end safety lifecycle management for automotive systems." },
-            { title: "Safety Analysis", desc: "Expert FHA, HARA, FMEA, and FTA services using industry-leading tools." },
-            { title: "Embedded Solutions", desc: "Safe and secure firmware development for critical automotive ECUs." }
-          ].map((feature, i) => (
-            <div key={i} className="p-10 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all text-left group">
-              <div className="w-12 h-12 bg-blue-100 rounded-2xl mb-6 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 18l-7-3.9V8.9l7 3.9 7-3.9v7.2l-7 3.9z"/></svg>
-              </div>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-              <p className="text-slate-500 leading-relaxed font-medium">{feature.desc}</p>
+          <div ref={heroRef} className="relative z-10 space-y-8 max-w-7xl mx-auto">
+            <div className="inline-block px-5 py-2 rounded-full border border-blue-900/30 bg-blue-900/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] hero-text">
+              Automotive Functional Safety
             </div>
-          ))}
-        </section>
-      </main>
+            
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tighter hero-text leading-[0.9] uppercase italic relative z-20 py-2 bg-clip-text text-transparent bg-gradient-to-b from-neutral-800 via-neutral-700 to-neutral-700 dark:from-neutral-800 dark:via-white dark:to-white">
+                The Future Of <br />
+                <Cover>Safety</Cover> Is Here
+              </h1>
+              
+              <h2 className="text-2xl md:text-3xl font-bold text-zinc-200 hero-text max-w-4xl mx-auto tracking-tight">
+                <EncryptedText 
+                  text="Discover the safest self-driving experience with Drivvize"
+                  encryptedClassName="text-zinc-500"
+                  revealedClassName="text-zinc-200"
+                  revealDelayMs={50}
+                  animate={isIntroFinished}
+                />
+              </h2>
+            </div>
 
-      <footer className="px-8 py-20 border-t border-slate-200 bg-white">
+            <div className="max-w-2xl mx-auto hero-text">
+              <TextGenerateEffect
+                words="We are an Automotive Functional Safety Consultancy who provide very high-quality services to meet the ISO 26262 needs of your organization. We have a holistic view about safety and we use that to help companies develop very safe products."
+                className="text-zinc-500 text-base md:text-lg leading-relaxed font-medium opacity-90"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Vision Section */}
+        <section className="vision-section min-h-screen flex items-center justify-center px-8 relative z-30 -mt-[30vh]">
+          <div className="max-w-7xl mx-auto w-full">
+            <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-start w-full">
+              <div className="flex-1 space-y-8 text-left">
+                <div>
+                  <div className="inline-block px-3 py-1 rounded-full border border-blue-900/30 bg-blue-900/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                    Our Philosophy
+                  </div>
+                  <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-zinc-100 uppercase italic">
+                    Our Vision
+                  </h2>
+                </div>
+                
+                <p className="text-zinc-400 text-lg md:text-2xl leading-relaxed font-medium">
+                  At Drivvize, we believe the future of mobility lies in the seamless integration of cutting-edge technology with the highest levels of safety and security.
+                </p>
+
+                <div className="pl-6 border-l-4 border-blue-600 py-1">
+                  <p className="text-zinc-500 text-base md:text-xl italic font-medium leading-relaxed">
+                    "Our solutions are designed to enable our clients to achieve this vision and stay ahead of the curve."
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-1 w-full grid grid-cols-1 gap-4">
+                {[
+                  "Uncompromising safety standards",
+                  "Future-ready mobility solutions",
+                  "Strategic client partnerships"
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-4 p-6 rounded-2xl bg-zinc-950/60 backdrop-blur-md border border-zinc-800/50 hover:border-blue-500/20 transition-all duration-500 group shadow-lg">
+                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-zinc-950 group-hover:scale-110 transition-all duration-300">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    <span className="text-lg md:text-2xl font-bold text-zinc-100/90 tracking-tight group-hover:text-white transition-colors">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer className="px-8 py-20 border-t border-zinc-800 bg-zinc-950">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-            <div className="flex items-center gap-3 font-bold text-2xl tracking-tighter">
-              <div className="relative h-8 w-8 overflow-hidden rounded-md">
-                <Image src="/Drivvize_logo.jpeg" alt="Logo" fill className="object-contain" />
+            <div className="flex items-center gap-3 font-bold text-2xl tracking-tighter text-zinc-100">
+              <div className="relative h-8 w-8 overflow-hidden rounded-md border border-zinc-800">
+                <Image src="/Drivvize_logo.jpeg" alt="Logo" fill className="object-contain grayscale invert" />
               </div>
               DRIVVIZE
             </div>
-            <div className="text-slate-500 text-sm font-medium">© 2026 Drivvize Automotive Safety. All rights reserved.</div>
+            <div className="text-zinc-500 text-sm font-medium">© 2026 Drivvize Automotive Safety. All rights reserved.</div>
             <div className="flex gap-10">
                 {["LinkedIn", "Twitter", "Email"].map(social => (
-                    <a key={social} href="#" className="text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors uppercase tracking-widest">
+                    <a key={social} href="#" className="text-sm font-bold text-zinc-400 hover:text-blue-500 transition-colors uppercase tracking-widest">
                         {social}
                     </a>
                 ))}
