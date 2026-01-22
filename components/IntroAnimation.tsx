@@ -124,13 +124,9 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
       {/* Background Wrapper - This will slide up */}
       <div 
         ref={bgRef}
-        className="absolute inset-0 bg-zinc-950"
-        style={{
-          background: "linear-gradient(-45deg, #09090b, #18181b, #09090b, #171717, #09090b)",
-          backgroundSize: "400% 400%",
-        }}
+        className="absolute inset-0 bg-[#020617]"
       >
-        <div className="absolute inset-0 opacity-30 blur-3xl bg-gradient-to-tr from-blue-900/20 to-zinc-950" />
+        <div className="absolute inset-0 opacity-30 blur-3xl bg-gradient-to-tr from-blue-900/40 to-[#020617]" />
       </div>
       
       <div className="relative z-10 flex flex-col items-center gap-8 pointer-events-auto">
@@ -139,14 +135,15 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
           ref={logoRef}
           className="relative h-40 w-40 sm:h-56 sm:w-56"
         >
-            <Image 
-              src="/Drivvize_logo.jpeg" 
-              alt="Drivvize Logo" 
-              width={224} 
-              height={224}
-              className="w-full h-full object-contain grayscale invert"
-              priority
-            />
+          <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full" />
+          <Image 
+            src="/Drivvize_logo.jpeg" 
+            alt="Drivvize Logo" 
+            width={224} 
+            height={224}
+            className="w-full h-full object-contain relative z-10 drop-shadow-[0_0_30px_rgba(56,189,248,0.5)]"
+            priority
+          />
         </div>
 
         {/* Text Animation */}

@@ -3,6 +3,8 @@
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+// @ts-ignore - GSAP types can have casing conflicts on Windows
+import { Observer } from "gsap/Observer";
 import Image from "next/image";
 import { VehicleShowcase } from "@/components/ui/vehicle-showcase";
 import { FloatingDock } from "@/components/ui/floating-dock";
@@ -17,8 +19,15 @@ import { MailCheckIcon } from "@/components/icons/mail-check";
 import { Cover } from "@/components/ui/cover";
 import { EncryptedText } from "@/components/ui/encrypted-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+import { SparklesCore } from "@/components/ui/sparkles";
+import { TextHoverEffect } from "@/components/ui/text-hover-effect";
+import { TypewriterEffect, TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
+import { FeaturesScroll } from "@/components/FeaturesScroll";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, Observer);
 
 export default function LandingPage({ isIntroFinished = true }: { isIntroFinished?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -103,70 +112,197 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
         delay: 4.2,
       });
 
-      // Coordinator Timeline for the scene transition
-      const sceneTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: ".hero-section",
-          start: "top top",
-          end: "+=45%", // Balanced scroll distance
-          scrub: 0.5, // Faster feedback to avoid stuck blur
-          pin: true,
-          pinSpacing: false,
-        }
-      });
+      // Transition logic using Observer for a "slide show" feel
+      let animating = false;
+      let currentIndex = 0; // 0 for hero, 1 for vision
+      let visionPointIndex = -1; // -1 for intro text, 0, 1, 2 for features
+      const totalVisionPoints = 3;
 
-      sceneTl
-        .to(heroRef.current, {
-          opacity: 0,
-          filter: "blur(50px)",
-          y: -80,
-          duration: 1
-        })
-        .to(".vehicle-overlay", {
-          opacity: 0,
-          duration: 1
-        }, "-=1")
-        .to(".vehicle-bg", {
-          opacity: 1,
-          duration: 1
-        }, "-=1")
-        .fromTo(".vision-section", 
-          { 
-            y: 150, 
-            opacity: 0, 
-            filter: "blur(20px)" 
-          },
-          {
+      gsap.set(".vision-section", { y: "-100%", autoAlpha: 0 });
+
+      const updateVisionPoints = (index: number) => {
+        const cards = gsap.utils.toArray(".feature-card");
+        const introText = document.querySelector(".vision-intro-text");
+        
+        animating = true;
+        
+        // Handle Intro Text (index === -1)
+        if (index === -1) {
+          gsap.to(introText, { 
+            opacity: 1, 
             y: 0,
+            scale: 1,
+            duration: 0.8,
+            ease: "power2.out",
+            onComplete: () => { animating = false; }
+          });
+          cards.forEach((card: any) => {
+            gsap.to(card, { opacity: 0, y: 50, scale: 0.9, display: "none", duration: 0.5 });
+          });
+          return;
+        }
+
+        // Keep Intro Text visible but maybe slightly faded
+        gsap.to(introText, { 
+          opacity: 0.6, 
+          scale: 0.98,
+          duration: 0.6
+        });
+
+        // Handle Feature Cards - Progressive Reveal
+        cards.forEach((card: any, i: number) => {
+          if (i <= index) {
+            // Already shown or being shown
+            if (gsap.getProperty(card, "display") === "none") {
+              gsap.set(card, { display: "flex" });
+              gsap.fromTo(card, 
+                { opacity: 0, scale: 0.8, y: 50, filter: "blur(10px)" },
+                { 
+                  opacity: 1, 
+                  scale: 1, 
+                  y: 0, 
+                  filter: "blur(0px)",
+                  duration: 1, 
+                  ease: "back.out(1.2)", 
+                  onComplete: () => { animating = false; } 
+                }
+              );
+            } else {
+              // Ensure it stays visible if it was already shown
+              gsap.to(card, { opacity: 1, scale: 1, y: 0, filter: "blur(0px)", duration: 0.5 });
+              if (i === index) animating = false;
+            }
+          } else {
+            // Should be hidden (if user scrolls back down)
+            gsap.to(card, { 
+              opacity: 0, 
+              scale: 0.8, 
+              y: 50, 
+              filter: "blur(10px)",
+              display: "none", 
+              duration: 0.6,
+              ease: "power2.in"
+            });
+            if (i === index) animating = false;
+          }
+        });
+      };
+
+      const gotoSection = (index: number) => {
+        if (animating || index === currentIndex) return;
+        animating = true;
+
+        if (index === 1) {
+          // Reset point index when entering
+          visionPointIndex = -1;
+          
+          gsap.to(heroRef.current, {
+            opacity: 0,
+            filter: "blur(20px)",
+            y: 100,
+            scale: 0.9,
+            duration: 1.2,
+            ease: "power2.inOut"
+          });
+          gsap.to(".vision-section", {
+            y: "0%",
+            autoAlpha: 1,
+            duration: 1.2,
+            ease: "power2.inOut",
+            onComplete: () => {
+              currentIndex = 1;
+              animating = false;
+              updateVisionPoints(-1);
+            }
+          });
+        } else {
+          gsap.to(heroRef.current, {
             opacity: 1,
             filter: "blur(0px)",
+            y: 0,
+            scale: 1,
             duration: 1.2,
-            ease: "none"
-          }, 
-          "-=0.8"
-        );
+            ease: "power2.inOut"
+          });
+          gsap.to(".vision-section", {
+            y: "-100%",
+            autoAlpha: 0,
+            duration: 1.2,
+            ease: "power2.inOut",
+            onComplete: () => {
+              animating = false;
+              currentIndex = 0;
+            }
+          });
+        }
+      };
+
+      Observer.create({
+        target: window,
+        type: "wheel,touch",
+        onUp: () => {
+          if (!isIntroFinished || animating) return;
+          
+          if (currentIndex === 0) {
+            gotoSection(1);
+          } else if (currentIndex === 1) {
+            // User scrolled UP -> next point per request
+            if (visionPointIndex < totalVisionPoints - 1) {
+              visionPointIndex++;
+              updateVisionPoints(visionPointIndex);
+            }
+          }
+        },
+        onDown: () => {
+          if (!isIntroFinished || animating) return;
+
+          if (currentIndex === 1) {
+            // User scrolled DOWN -> prev point or go back to hero
+            if (visionPointIndex > -1) {
+              visionPointIndex--;
+              updateVisionPoints(visionPointIndex);
+            } else {
+              gotoSection(0);
+            }
+          }
+        },
+        tolerance: 10,
+        preventDefault: true
+      });
 
 
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isIntroFinished]);
 
   return (
-    <div ref={containerRef} className="bg-zinc-950 text-zinc-50 selection:bg-blue-500/30">
-      {/* Animated Gradient Background */}
-      <div 
-        className="animated-bg fixed inset-0 -z-20"
-        style={{
-          background: "linear-gradient(-45deg, #09090b, #18181b, #09090b, #171717, #09090b)",
-          backgroundSize: "400% 400%",
-        }}
+    <div ref={containerRef} className="bg-[#020617] text-zinc-50 selection:bg-blue-500/30 overflow-x-hidden">
+      {/* Premium Animated Background Layer */}
+      <div className="fixed inset-0 z-0">
+        <SparklesCore
+          id="tsparticlesfullpage"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className="w-full h-full"
+          particleColor="#3b82f6"
+        />
+      </div>
+
+      {/* Subtle Grid Pattern */}
+      <div className="fixed inset-0 z-0 opacity-[0.15] pointer-events-none" 
+        style={{ 
+          backgroundImage: `linear-gradient(#1e293b 1px, transparent 1px), linear-gradient(90deg, #1e293b 1px, transparent 1px)`,
+          backgroundSize: "40px 40px"
+        }} 
       />
       
       {/* Vehicle Background Layer */}
-      <div className="fixed inset-0 top-0 h-screen w-full -z-10 bg-zinc-900/50 vehicle-showcase-container">
-        <VehicleShowcase className="h-full w-full object-cover opacity-30 vehicle-bg" />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent vehicle-overlay" />
+      <div className="fixed inset-0 top-0 h-screen w-full -z-10 bg-slate-950/20 vehicle-showcase-container">
+        <VehicleShowcase className="h-full w-full object-cover opacity-20 vehicle-bg" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#020617] via-transparent to-[#020617]/50 vehicle-overlay" />
       </div>
 
       {/* Floating Background Orbs */}
@@ -188,8 +324,14 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
       {/* Top Header - Logo Only */}
       <header className="fixed top-0 w-full z-40 px-8 py-6 pointer-events-none">
         <div className="flex items-center nav-brand pointer-events-auto">
-          <div className="relative h-14 w-56 overflow-hidden">
-            <Image src="/Drivvize_logo.jpeg" alt="Logo" fill className="object-contain grayscale invert" />
+          <div className="relative h-14 w-56">
+            <div className="absolute inset-0 bg-blue-500/10 blur-2xl rounded-full" />
+            <Image 
+              src="/Drivvize_logo.jpeg" 
+              alt="Logo" 
+              fill 
+              className="object-contain relative z-10 hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(56,189,248,0.6)]" 
+            />
           </div>
         </div>
       </header>
@@ -200,43 +342,43 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
           items={[
             {
               title: "Home",
-              icon: <HomeIcon className="h-full w-full text-blue-500" size="100%" />,
+              icon: <HomeIcon className="h-full w-full text-zinc-100 group-hover:text-blue-400 transition-colors" size="100%" />,
               href: "#",
             },
             {
               title: "About Us",
-              icon: <UsersIcon className="h-full w-full text-zinc-400" size="100%" />,
+              icon: <UsersIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
               href: "#",
             },
             {
               title: "FAQs",
-              icon: <CircleHelpIcon className="h-full w-full text-zinc-400" size="100%" />,
+              icon: <CircleHelpIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
               href: "#",
             },
             {
               title: "Services",
-              icon: <ArchiveIcon className="h-full w-full text-zinc-400" size="100%" />,
+              icon: <ArchiveIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
               href: "#",
             },
             {
               title: "Blog",
-              icon: <FileTextIcon className="h-full w-full text-zinc-400" size="100%" />,
+              icon: <FileTextIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
               href: "#",
             },
             {
               title: "Downloads",
-              icon: <DownloadIcon className="h-full w-full text-zinc-400" size="100%" />,
+              icon: <DownloadIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
               href: "#",
             },
             {
               title: "Careers",
-              icon: <PartyPopperIcon className="h-full w-full text-zinc-400" size="100%" />,
+              icon: <PartyPopperIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
               href: "#",
             },
             {
               title: "Contact Us",
               icon: (
-                <div className="h-full w-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white p-1">
+                <div className="h-full w-full bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white p-2 shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
                   <MailCheckIcon className="h-full w-full" size="100%" />
                 </div>
               ),
@@ -247,19 +389,37 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
       </div>
 
       {/* Sections Container */}
-      <div className="relative">
+      <div className="relative main-sections-container h-screen overflow-hidden">
         {/* Hero Section */}
-        <section className="hero-section relative h-screen flex flex-col items-center justify-center px-8 text-center overflow-hidden z-20">
+        <section className="hero-section relative h-screen flex flex-col items-center justify-center px-8 text-center z-20">
           <div className="absolute top-20 -left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute top-40 -right-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-[150px] pointer-events-none" />
 
           <div ref={heroRef} className="relative z-10 space-y-8 max-w-7xl mx-auto">
-            <div className="inline-block px-5 py-2 rounded-full border border-blue-900/30 bg-blue-900/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] hero-text">
-              Automotive Functional Safety
+            <div className="z-10 flex items-center justify-center hero-text">
+              <div className="group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f]">
+                <span
+                  className={cn(
+                    "animate-gradient absolute inset-0 block h-full w-full rounded-[inherit] bg-linear-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-size-[300%_100%] p-px"
+                  )}
+                  style={{
+                    WebkitMask:
+                      "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                    WebkitMaskComposite: "destination-out",
+                    mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                    maskComposite: "subtract",
+                    WebkitClipPath: "padding-box",
+                  }}
+                />
+                <AnimatedGradientText className="text-[10px] font-black uppercase tracking-[0.3em]">
+                  Automotive Functional Safety
+                </AnimatedGradientText>
+                <ChevronRight className="ml-1 size-3 stroke-neutral-500 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+              </div>
             </div>
             
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tighter hero-text leading-[0.9] uppercase italic relative z-20 py-2 bg-clip-text text-transparent bg-gradient-to-b from-neutral-800 via-neutral-700 to-neutral-700 dark:from-neutral-800 dark:via-white dark:to-white">
+              <h1 className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tighter hero-text leading-[0.9] uppercase italic relative z-20 py-2 bg-clip-text text-transparent bg-linear-to-b from-neutral-800 via-neutral-700 to-neutral-700 dark:from-neutral-800 dark:via-white dark:to-white">
                 The Future Of <br />
                 <Cover>Safety</Cover> Is Here
               </h1>
@@ -277,7 +437,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
 
             <div className="max-w-2xl mx-auto hero-text">
               <TextGenerateEffect
-                words="We are an Automotive Functional Safety Consultancy who provide very high-quality services to meet the ISO 26262 needs of your organization. We have a holistic view about safety and we use that to help companies develop very safe products."
+                words="We are an Automotive Functional Safety Consultancy who provide high-quality services to meet the ISO 26262 needs of your organization. We use a holistic view to develop products that are not just safe, but revolutionary."
                 className="text-zinc-500 text-base md:text-lg leading-relaxed font-medium opacity-90"
               />
             </div>
@@ -285,69 +445,68 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
         </section>
 
         {/* Vision Section */}
-        <section className="vision-section min-h-screen flex items-center justify-center px-8 relative z-30 -mt-[30vh]">
-          <div className="max-w-7xl mx-auto w-full">
-            <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-start w-full">
-              <div className="flex-1 space-y-8 text-left">
-                <div>
-                  <div className="inline-block px-3 py-1 rounded-full border border-blue-900/30 bg-blue-900/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                    Our Philosophy
-                  </div>
-                  <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-zinc-100 uppercase italic">
-                    Our Vision
-                  </h2>
-                </div>
-                
-                <p className="text-zinc-400 text-lg md:text-2xl leading-relaxed font-medium">
-                  At Drivvize, we believe the future of mobility lies in the seamless integration of cutting-edge technology with the highest levels of safety and security.
-                </p>
+        <section className="vision-section h-screen flex flex-col items-center justify-center px-8 absolute top-0 left-0 w-full z-30 invisible overflow-hidden">
+          {/* Large Background Text Effect */}
+          <div className="fixed inset-0 flex items-center justify-center z-0 pointer-events-none">
+            <div className="w-full h-full md:h-[120%] opacity-40 transition-opacity duration-500">
+              <TextHoverEffect text="VISION" automatic={true} />
+            </div>
+          </div>
 
-                <div className="pl-6 border-l-4 border-blue-600 py-1">
-                  <p className="text-zinc-500 text-base md:text-xl italic font-medium leading-relaxed">
-                    "Our solutions are designed to enable our clients to achieve this vision and stay ahead of the curve."
-                  </p>
+          <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col items-center justify-center">
+            {/* Heading stays visible */}
+            <div className="mb-6 text-center pointer-events-auto">
+              <h2 className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tighter text-zinc-100 uppercase italic">
+                Our Vision
+              </h2>
+            </div>
+
+            <div className="relative w-full flex flex-col items-center">
+              {/* Intro Text Block */}
+              <div className="vision-intro-text w-full flex flex-col items-center space-y-6 text-center pointer-events-auto transition-all duration-700">
+                <div className="max-w-5xl mx-auto">
+                  <TextGenerateEffect
+                    words="At Drivvize, we believe the future of mobility lies in the seamless integration of cutting-edge technology with the highest levels of safety and security."
+                    className="text-zinc-400 text-xl md:text-2xl leading-relaxed font-medium"
+                  />
+                </div>
+
+                <div className="mx-auto border-l-4 border-blue-600 py-2 max-w-3xl px-8 bg-slate-900/20 backdrop-blur-sm rounded-r-2xl">
+                  <TypewriterEffect
+                    words={[
+                      { text: '"Our', className: "text-zinc-500" },
+                      { text: "solutions", className: "text-zinc-500" },
+                      { text: "are", className: "text-zinc-500" },
+                      { text: "designed", className: "text-zinc-500" },
+                      { text: "to", className: "text-zinc-500" },
+                      { text: "enable", className: "text-zinc-500" },
+                      { text: "our", className: "text-zinc-500" },
+                      { text: "clients", className: "text-zinc-500" },
+                      { text: "to", className: "text-zinc-500" },
+                      { text: "achieve", className: "text-zinc-500" },
+                      { text: "this", className: "text-zinc-500" },
+                      { text: "vision", className: "text-blue-500 font-bold" },
+                      { text: "and", className: "text-zinc-500" },
+                      { text: "stay", className: "text-zinc-500" },
+                      { text: "ahead", className: "text-zinc-500" },
+                      { text: "of", className: "text-zinc-500" },
+                      { text: "the", className: "text-zinc-500" },
+                      { text: 'curve."', className: "text-blue-500 font-bold" },
+                    ]}
+                    className="text-lg md:text-xl italic font-medium text-center"
+                    cursorClassName="bg-blue-500 h-6 md:h-8 w-[2px]"
+                  />
                 </div>
               </div>
 
-              <div className="flex-1 w-full grid grid-cols-1 gap-4">
-                {[
-                  "Uncompromising safety standards",
-                  "Future-ready mobility solutions",
-                  "Strategic client partnerships"
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 p-6 rounded-2xl bg-zinc-950/60 backdrop-blur-md border border-zinc-800/50 hover:border-blue-500/20 transition-all duration-500 group shadow-lg">
-                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-zinc-950 group-hover:scale-110 transition-all duration-300">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    </div>
-                    <span className="text-lg md:text-2xl font-bold text-zinc-100/90 tracking-tight group-hover:text-white transition-colors">{item}</span>
-                  </div>
-                ))}
+              {/* Points Showcase Area */}
+              <div className="w-full flex items-center justify-center pointer-events-auto">
+                <FeaturesScroll />
               </div>
             </div>
           </div>
         </section>
       </div>
-
-      <footer className="px-8 py-20 border-t border-zinc-800 bg-zinc-950">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-            <div className="flex items-center gap-3 font-bold text-2xl tracking-tighter text-zinc-100">
-              <div className="relative h-8 w-8 overflow-hidden rounded-md border border-zinc-800">
-                <Image src="/Drivvize_logo.jpeg" alt="Logo" fill className="object-contain grayscale invert" />
-              </div>
-              DRIVVIZE
-            </div>
-            <div className="text-zinc-500 text-sm font-medium">© 2026 Drivvize Automotive Safety. All rights reserved.</div>
-            <div className="flex gap-10">
-                {["LinkedIn", "Twitter", "Email"].map(social => (
-                    <a key={social} href="#" className="text-sm font-bold text-zinc-400 hover:text-blue-500 transition-colors uppercase tracking-widest">
-                        {social}
-                    </a>
-                ))}
-            </div>
-        </div>
-      </footer>
     </div>
   );
 }
