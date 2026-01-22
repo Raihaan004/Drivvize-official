@@ -34,7 +34,7 @@ export const TextHoverEffect = ({
       ref={svgRef}
       width="100%"
       height="100%"
-      viewBox="0 0 300 100"
+      viewBox="0 0 1200 100"
       xmlns="http://www.w3.org/2000/svg"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -45,9 +45,10 @@ export const TextHoverEffect = ({
         <linearGradient
           id="textGradient"
           gradientUnits="userSpaceOnUse"
-          cx="50%"
-          cy="50%"
-          r="25%"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="0%"
         >
           {(hovered || automatic) && (
             <>
@@ -63,7 +64,7 @@ export const TextHoverEffect = ({
         <motion.radialGradient
           id="revealMask"
           gradientUnits="userSpaceOnUse"
-          r={automatic ? "35%" : "20%"}
+          r={automatic ? "45%" : "25%"}
           initial={{ cx: "50%", cy: "50%" }}
           animate={
             automatic
@@ -75,7 +76,7 @@ export const TextHoverEffect = ({
           transition={
             automatic
               ? {
-                  duration: 6,
+                  duration: 5,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }
@@ -100,8 +101,8 @@ export const TextHoverEffect = ({
         y="50%"
         textAnchor="middle"
         dominantBaseline="middle"
-        strokeWidth="0.5"
-        className="fill-transparent stroke-neutral-200 font-[helvetica] text-7xl font-bold dark:stroke-neutral-800"
+        strokeWidth="1"
+        className="fill-transparent stroke-neutral-400 font-[helvetica] text-7xl font-bold dark:stroke-neutral-600"
         style={{ opacity: (hovered || automatic) ? 0.8 : 0 }}
       >
         {text}
@@ -111,17 +112,26 @@ export const TextHoverEffect = ({
         y="50%"
         textAnchor="middle"
         dominantBaseline="middle"
-        strokeWidth="0.5"
-        className="fill-transparent stroke-neutral-200 font-[helvetica] text-7xl font-bold dark:stroke-neutral-800"
-        initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
+        strokeWidth="1"
+        className="fill-transparent stroke-neutral-400 font-[helvetica] text-7xl font-bold dark:stroke-neutral-600"
+        initial={{ strokeDashoffset: 4000, strokeDasharray: 4000 }}
         animate={{
           strokeDashoffset: 0,
-          strokeDasharray: 1000,
+          strokeDasharray: 4000,
         }}
-        transition={{
-          duration: 4,
-          ease: "easeInOut",
-        }}
+        transition={
+          automatic
+            ? {
+                duration: 4,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "reverse",
+              }
+            : {
+                duration: 4,
+                ease: "easeInOut",
+              }
+        }
       >
         {text}
       </motion.text>
@@ -131,7 +141,7 @@ export const TextHoverEffect = ({
         textAnchor="middle"
         dominantBaseline="middle"
         stroke="url(#textGradient)"
-        strokeWidth="0.5"
+        strokeWidth="1"
         mask="url(#textMask)"
         className="fill-transparent font-[helvetica] text-7xl font-bold"
       >

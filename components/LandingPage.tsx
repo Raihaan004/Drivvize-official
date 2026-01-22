@@ -26,6 +26,7 @@ import { SparklesCore } from "@/components/ui/sparkles";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
 import { TypewriterEffect, TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { FeaturesScroll } from "@/components/FeaturesScroll";
+import { WhyChooseUs } from "@/components/WhyChooseUs";
 
 gsap.registerPlugin(ScrollTrigger, Observer);
 
@@ -119,6 +120,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
       const totalVisionPoints = 3;
 
       gsap.set(".vision-section", { y: "-100%", autoAlpha: 0 });
+      gsap.set(".why-choose-section", { y: "-100%", autoAlpha: 0 });
 
       const updateVisionPoints = (index: number) => {
         const cards = gsap.utils.toArray(".feature-card");
@@ -192,46 +194,42 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
         if (animating || index === currentIndex) return;
         animating = true;
 
-        if (index === 1) {
-          // Reset point index when entering
-          visionPointIndex = -1;
-          
+        if (index === 0) {
+          // Hero
           gsap.to(heroRef.current, {
-            opacity: 0,
-            filter: "blur(20px)",
-            y: 100,
-            scale: 0.9,
-            duration: 1.2,
-            ease: "power2.inOut"
+            opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power2.inOut"
           });
           gsap.to(".vision-section", {
-            y: "0%",
-            autoAlpha: 1,
-            duration: 1.2,
-            ease: "power2.inOut",
+            y: "-100%", autoAlpha: 0, duration: 1.2, ease: "power2.inOut"
+          });
+          gsap.to(".why-choose-section", {
+            y: "-200%", autoAlpha: 0, duration: 1.2, ease: "power2.inOut",
+            onComplete: () => { animating = false; currentIndex = 0; }
+          });
+        } else if (index === 1) {
+          // Vision
+          visionPointIndex = -1;
+          gsap.to(heroRef.current, {
+            opacity: 0, filter: "blur(20px)", y: 100, scale: 0.9, duration: 1.2, ease: "power2.inOut"
+          });
+          gsap.to(".vision-section", {
+            y: "0%", autoAlpha: 1, duration: 1.2, ease: "power2.inOut"
+          });
+          gsap.to(".why-choose-section", {
+            y: "-100%", autoAlpha: 0, duration: 1.2, ease: "power2.inOut",
             onComplete: () => {
-              currentIndex = 1;
-              animating = false;
-              updateVisionPoints(-1);
+              currentIndex = 1; animating = false; updateVisionPoints(-1);
             }
           });
-        } else {
-          gsap.to(heroRef.current, {
-            opacity: 1,
-            filter: "blur(0px)",
-            y: 0,
-            scale: 1,
-            duration: 1.2,
-            ease: "power2.inOut"
-          });
+        } else if (index === 2) {
+          // Why Choose Us
           gsap.to(".vision-section", {
-            y: "-100%",
-            autoAlpha: 0,
-            duration: 1.2,
-            ease: "power2.inOut",
+            y: "100%", autoAlpha: 0, duration: 1.2, ease: "power2.inOut"
+          });
+          gsap.to(".why-choose-section", {
+            y: "0%", autoAlpha: 1, duration: 1.2, ease: "power2.inOut",
             onComplete: () => {
-              animating = false;
-              currentIndex = 0;
+              currentIndex = 2; animating = false;
             }
           });
         }
@@ -246,18 +244,27 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
           if (currentIndex === 0) {
             gotoSection(1);
           } else if (currentIndex === 1) {
-            // User scrolled UP -> next point per request
+            // In vision, scroll UP -> show next point
             if (visionPointIndex < totalVisionPoints - 1) {
               visionPointIndex++;
               updateVisionPoints(visionPointIndex);
+            } else {
+              // Reached end of vision, go to Why Choose Us
+              gotoSection(2);
             }
           }
         },
         onDown: () => {
           if (!isIntroFinished || animating) return;
 
-          if (currentIndex === 1) {
-            // User scrolled DOWN -> prev point or go back to hero
+          if (currentIndex === 2) {
+            // In Why Choose Us, scroll DOWN -> back to vision
+            gotoSection(1);
+            // After entering vision from bottom, show last point
+            visionPointIndex = totalVisionPoints - 1;
+            // Delay a bit to let transition finish
+            setTimeout(() => updateVisionPoints(visionPointIndex), 1200);
+          } else if (currentIndex === 1) {
             if (visionPointIndex > -1) {
               visionPointIndex--;
               updateVisionPoints(visionPointIndex);
@@ -448,7 +455,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
         <section className="vision-section h-screen flex flex-col items-center justify-center px-8 absolute top-0 left-0 w-full z-30 invisible overflow-hidden">
           {/* Large Background Text Effect */}
           <div className="fixed inset-0 flex items-center justify-center z-0 pointer-events-none">
-            <div className="w-full h-full md:h-[120%] opacity-40 transition-opacity duration-500">
+            <div className="w-full h-full scale-[1.2] md:scale-[1.7] lg:scale-[4] opacity-30 transition-opacity duration-500 flex items-center justify-center">
               <TextHoverEffect text="VISION" automatic={true} />
             </div>
           </div>
@@ -505,6 +512,11 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
               </div>
             </div>
           </div>
+        </section>
+
+        {/* Why Choose Us Section */}
+        <section className="why-choose-section h-screen flex flex-col items-center justify-center px-8 absolute top-0 left-0 w-full z-30 invisible overflow-hidden">
+          <WhyChooseUs />
         </section>
       </div>
     </div>
