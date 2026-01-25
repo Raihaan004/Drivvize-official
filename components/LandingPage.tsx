@@ -82,36 +82,39 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
         delay: 1,
       });
 
-      gsap.to(".hero-text", {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        stagger: 0.2,
-        ease: "power4.out",
-        delay: 3.2, 
-      });
+      if (isIntroFinished) {
+        gsap.to(".hero-text", {
+          opacity: 1,
+          y: 0,
+          duration: 1.2,
+          stagger: 0.2,
+          ease: "power4.out",
+          delay: 0.2, 
+        });
 
-      gsap.to(".nav-brand", {
-        opacity: 1,
-        duration: 0.1,
-        delay: 3.8,
-      });
+        gsap.to(".nav-brand", {
+          opacity: 1,
+          duration: 0.8,
+          delay: 0.5,
+          ease: "power3.out"
+        });
 
-      gsap.to(".nav-pill", {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power4.out",
-        delay: 4.0,
-      });
+        gsap.to(".nav-pill", {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power4.out",
+          delay: 0.7,
+        });
 
-      gsap.to(".nav-link", {
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.05,
-        ease: "power3.out",
-        delay: 4.2,
-      });
+        gsap.to(".nav-link", {
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.05,
+          ease: "power3.out",
+          delay: 0.8,
+        });
+      }
 
       // Transition logic using Observer for a "slide show" feel
       let animating = false;
@@ -330,7 +333,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
 
       {/* Top Header - Logo Only */}
       <header className="fixed top-0 w-full z-40 px-8 py-6 pointer-events-none">
-        <div className="flex items-center nav-brand pointer-events-auto">
+        <div className="flex items-center nav-brand pointer-events-auto opacity-0">
           <div className="relative h-14 w-56">
             <div className="absolute inset-0 bg-blue-500/10 blur-2xl rounded-full" />
             <Image 
@@ -344,43 +347,43 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
       </header>
 
       {/* Floating Bottom Navigation - FloatingDock */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 nav-pill">
+      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 nav-pill opacity-0">
         <FloatingDock
           items={[
             {
               title: "Home",
               icon: <HomeIcon className="h-full w-full text-zinc-100 group-hover:text-blue-400 transition-colors" size="100%" />,
-              href: "#",
+              href: "/",
             },
             {
               title: "About Us",
               icon: <UsersIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "#",
+              href: "/about-us",
             },
             {
               title: "FAQs",
               icon: <CircleHelpIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "#",
+              href: "/faqs",
             },
             {
               title: "Services",
               icon: <ArchiveIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "#",
+              href: "/services",
             },
             {
               title: "Blog",
               icon: <FileTextIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "#",
+              href: "/blog",
             },
             {
               title: "Downloads",
               icon: <DownloadIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "#",
+              href: "/downloads",
             },
             {
               title: "Careers",
               icon: <PartyPopperIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "#",
+              href: "/careers",
             },
             {
               title: "Contact Us",
@@ -389,7 +392,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
                   <MailCheckIcon className="h-full w-full" size="100%" />
                 </div>
               ),
-              href: "#",
+              href: "/contact-us",
             },
           ]}
         />
@@ -402,8 +405,8 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
           <div className="absolute top-20 -left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute top-40 -right-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-[150px] pointer-events-none" />
 
-          <div ref={heroRef} className="relative z-10 space-y-8 max-w-7xl mx-auto">
-            <div className="z-10 flex items-center justify-center hero-text">
+          <div ref={heroRef} className="relative z-10 space-y-2 max-w-7xl mx-auto">
+            <div className="z-10 flex items-center justify-center hero-text opacity-0 pt-8">
               <div className="group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f]">
                 <span
                   className={cn(
@@ -426,12 +429,12 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
             </div>
             
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tighter hero-text leading-[0.9] uppercase italic relative z-20 py-2 bg-clip-text text-transparent bg-linear-to-b from-neutral-800 via-neutral-700 to-neutral-700 dark:from-neutral-800 dark:via-white dark:to-white">
+              <h1 className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tight hero-text leading-[1.2] uppercase italic relative z-20 py-8 px-12 bg-clip-text text-transparent bg-linear-to-b from-neutral-800 via-neutral-700 to-neutral-700 dark:from-neutral-800 dark:via-white dark:to-white overflow-visible opacity-0">
                 The Future Of <br />
                 <Cover>Safety</Cover> Is Here
               </h1>
               
-              <h2 className="text-2xl md:text-3xl font-bold text-zinc-200 hero-text max-w-4xl mx-auto tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-bold text-zinc-200 hero-text max-w-4xl mx-auto tracking-tight opacity-0">
                 <EncryptedText 
                   text="Discover the safest self-driving experience with Drivvize"
                   encryptedClassName="text-zinc-500"
@@ -442,7 +445,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
               </h2>
             </div>
 
-            <div className="max-w-2xl mx-auto hero-text">
+            <div className="max-w-2xl mx-auto hero-text opacity-0">
               <TextGenerateEffect
                 words="We are an Automotive Functional Safety Consultancy who provide high-quality services to meet the ISO 26262 needs of your organization. We use a holistic view to develop products that are not just safe, but revolutionary."
                 className="text-zinc-500 text-base md:text-lg leading-relaxed font-medium opacity-90"

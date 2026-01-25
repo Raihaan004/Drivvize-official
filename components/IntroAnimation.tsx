@@ -17,9 +17,7 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        onComplete: onComplete
-      });
+      const tl = gsap.timeline();
 
       // Character animation for the text
       const nameChars = "DRIVVIZE".split("");
@@ -66,48 +64,17 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
         duration: 0.8,
         ease: "power3.out",
       }, "-=0.3")
-      // Step A: Background slides up to reveal LandingPage
-      .to(bgRef.current, {
-        yPercent: -100,
-        duration: 1.2,
-        ease: "power4.inOut",
-        delay: 0.8,
-      })
-      // Step B: Fly the branding to the navbar (while over the landing page)
-      .to(subtitleRef.current, {
-        opacity: 0,
-        y: -20,
-        duration: 0.3,
-      }, "-=0.8")
-      // Step B: Fly the branding to the navbar position
-      .to(subtitleRef.current, {
-        opacity: 0,
-        y: -10,
-        duration: 0.3,
-      }, "-=0.8")
-      .to(textRef.current, {
-        opacity: 0,
-        y: 20,
-        duration: 0.6,
-        ease: "power2.in",
-      }, "-=0.6")
-      .to(logoRef.current, {
-        x: () => -(window.innerWidth / 2) + 144, // 32px (px-8) + 112px (half of w-56)
-        y: () => -(window.innerHeight / 2) + 52, // 24px (py-6) + 28px (half of h-14)
-        scale: 0.28, 
-        duration: 1.2,
-        ease: "power4.inOut",
-      }, "-=0.8")
-      .to(logoRef.current, {
-        opacity: 0,
-        duration: 0.1,
-      })
+      // Step A: Slide the entire container up to reveal LandingPage
       .to(containerRef.current, {
-        opacity: 0,
-        duration: 0.2,
+        yPercent: -100,
+        duration: 1.5,
+        ease: "power4.inOut",
+        delay: 1.2,
+        onStart: () => {
+          onComplete();
+        },
         onComplete: () => {
-             if (containerRef.current) containerRef.current.style.display = 'none';
-             onComplete();
+          if (containerRef.current) containerRef.current.style.display = 'none';
         }
       });
 
@@ -119,12 +86,12 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden pointer-events-none"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden pointer-events-none bg-[#020617]"
     >
-      {/* Background Wrapper - This will slide up */}
+      {/* Background Wrapper */}
       <div 
         ref={bgRef}
-        className="absolute inset-0 bg-[#020617]"
+        className="absolute inset-0"
       >
         <div className="absolute inset-0 opacity-30 blur-3xl bg-gradient-to-tr from-blue-900/40 to-[#020617]" />
       </div>
