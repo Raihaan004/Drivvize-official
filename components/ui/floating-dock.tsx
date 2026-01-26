@@ -18,7 +18,7 @@ export const FloatingDock = ({
   desktopClassName,
   mobileClassName,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { title: string; icon: React.ReactNode; href?: string; onClick?: () => void }[];
   desktopClassName?: string;
   mobileClassName?: string;
 }) => {
@@ -101,7 +101,7 @@ const FloatingDockDesktop = ({
   return (
     <div className={cn("relative hidden md:block", className)}>
       {/* Moving Border Layer - Premium subtle edge glow */}
-      <div className="absolute inset-[-2px] rounded-[1.75rem] overflow-hidden pointer-events-none opacity-50">
+      <div className="absolute -inset-0.5 rounded-[1.75rem] overflow-hidden pointer-events-none opacity-50">
         <MovingBorder duration={4000} rx="1.75rem" ry="1.75rem">
           <div className="relative h-20 w-20">
             {/* Main Glow */}
@@ -130,11 +130,13 @@ function IconContainer({
   title,
   icon,
   href,
+  onClick,
 }: {
   mouseX: MotionValue;
   title: string;
   icon: React.ReactNode;
-  href: string;
+  href?: string;
+  onClick?: () => void;
 }) {
   let ref = useRef<HTMLDivElement>(null);
 
@@ -174,51 +176,63 @@ function IconContainer({
 
   const [hovered, setHovered] = useState(false);
 
-  return (
-    <Link href={href} className="nav-link opacity-0">
-      <motion.div
-        ref={ref}
-        style={{ width, height }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        className="relative rounded-3xl flex items-center justify-center transition-colors duration-500 hover:bg-white/5 group border border-white/5 hover:border-blue-500/40 overflow-visible"
-      >
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              initial={{ opacity: 0, y: 10, x: "-50%", scale: 0.85, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, x: "-50%", scale: 1, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: 5, x: "-50%", scale: 0.9, filter: "blur(4px)" }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 260, 
-                damping: 20,
-                filter: { duration: 0.2 }
-              }}
-              className="px-3 py-1.5 whitespace-pre rounded-xl bg-zinc-950/90 backdrop-blur-xl border border-white/10 text-white absolute left-1/2 -top-12 w-fit text-[11px] font-bold uppercase tracking-[0.15em] shadow-[0_15px_30px_-5px_rgba(0,0,0,0.6)] pointer-events-none z-[100]"
-            >
-              <div className="flex items-center justify-center">
-                {title}
-              </div>
-              {/* Tooltip Arrow */}
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-950 rotate-45 border-r border-b border-white/10" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {/* Hover Glow Effect */}
-        <motion.div 
-          className="absolute inset-0 bg-blue-500/10 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
-          animate={hovered ? { scale: 1.2 } : { scale: 1 }}
-        />
+  const content = (
+    <motion.div
+      ref={ref}
+      style={{ width, height }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="relative rounded-3xl flex items-center justify-center transition-colors duration-500 hover:bg-white/5 group border border-white/5 hover:border-blue-500/40 overflow-visible"
+    >
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, x: "-50%", scale: 0.85, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, x: "-50%", scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: 5, x: "-50%", scale: 0.9, filter: "blur(4px)" }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 260, 
+              damping: 20,
+              filter: { duration: 0.2 }
+            }}
+            className="px-3 py-1.5 whitespace-pre rounded-xl bg-zinc-950/90 backdrop-blur-xl border border-white/10 text-white absolute left-1/2 -top-12 w-fit text-[11px] font-bold uppercase tracking-[0.15em] shadow-[0_15px_30px_-5px_rgba(0,0,0,0.6)] pointer-events-none z-100"
+          >
+            <div className="flex items-center justify-center">
+              {title}
+            </div>
+            {/* Tooltip Arrow */}
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-950 rotate-45 border-r border-b border-white/10" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Hover Glow Effect */}
+      <motion.div 
+        className="absolute inset-0 bg-blue-500/10 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+        animate={hovered ? { scale: 1.2 } : { scale: 1 }}
+      />
 
-        <motion.div
-          style={{ width: widthIcon, height: heightIcon }}
-          className="flex items-center justify-center relative z-10"
-        >
-          {icon}
-        </motion.div>
+      <motion.div
+        style={{ width: widthIcon, height: heightIcon }}
+        className="flex items-center justify-center relative z-10"
+      >
+        {icon}
       </motion.div>
+    </motion.div>
+  );
+
+  if (onClick) {
+    return (
+      <button onClick={onClick} className="nav-link cursor-pointer opacity-0">
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={href || "#"} className="nav-link opacity-0">
+      {content}
     </Link>
   );
 }

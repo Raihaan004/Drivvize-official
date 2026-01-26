@@ -7,15 +7,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Observer } from "gsap/Observer";
 import Image from "next/image";
 import { VehicleShowcase } from "@/components/ui/vehicle-showcase";
-import { FloatingDock } from "@/components/ui/floating-dock";
-import { HomeIcon } from "@/components/icons/home";
-import { UsersIcon } from "@/components/icons/users";
-import { CircleHelpIcon } from "@/components/icons/circle-help";
-import { ArchiveIcon } from "@/components/icons/archive";
-import { FileTextIcon } from "@/components/icons/file-text";
-import { DownloadIcon } from "@/components/icons/download";
-import { PartyPopperIcon } from "@/components/icons/party-popper";
-import { MailCheckIcon } from "@/components/icons/mail-check";
 import { Cover } from "@/components/ui/cover";
 import { EncryptedText } from "@/components/ui/encrypted-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
@@ -281,7 +272,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
       });
 
 
-    }, containerRef);
+    }); // Removed scope to allow targeting global navigation
 
     return () => ctx.revert();
   }, [isIntroFinished]);
@@ -345,58 +336,6 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
           </div>
         </div>
       </header>
-
-      {/* Floating Bottom Navigation - FloatingDock */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 nav-pill opacity-0">
-        <FloatingDock
-          items={[
-            {
-              title: "Home",
-              icon: <HomeIcon className="h-full w-full text-zinc-100 group-hover:text-blue-400 transition-colors" size="100%" />,
-              href: "/",
-            },
-            {
-              title: "About Us",
-              icon: <UsersIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "/about-us",
-            },
-            {
-              title: "FAQs",
-              icon: <CircleHelpIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "/faqs",
-            },
-            {
-              title: "Services",
-              icon: <ArchiveIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "/services",
-            },
-            {
-              title: "Blog",
-              icon: <FileTextIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "/blog",
-            },
-            {
-              title: "Downloads",
-              icon: <DownloadIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "/downloads",
-            },
-            {
-              title: "Careers",
-              icon: <PartyPopperIcon className="h-full w-full text-zinc-400 group-hover:text-white transition-colors" size="100%" />,
-              href: "/careers",
-            },
-            {
-              title: "Contact Us",
-              icon: (
-                <div className="h-full w-full bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white p-2 shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                  <MailCheckIcon className="h-full w-full" size="100%" />
-                </div>
-              ),
-              href: "/contact-us",
-            },
-          ]}
-        />
-      </div>
 
       {/* Sections Container */}
       <div className="relative main-sections-container h-screen overflow-hidden">
