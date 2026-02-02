@@ -22,6 +22,7 @@ import {
   Check
 } from "lucide-react";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
+import { SparklesCore } from "@/components/ui/sparkles";
 
 const services = [
   {
@@ -123,6 +124,15 @@ export default function ServicesPage() {
     <main ref={containerRef} className="relative h-[300vh] bg-zinc-950 text-white">
       {/* Background Video Layer - Now Sticky/Fixed for both sections */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <SparklesCore
+          id="tsparticlesservices"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={70}
+          className="w-full h-full absolute inset-0 z-0"
+          particleColor="#FFFFFF"
+        />
         <AnimatePresence mode="popLayout">
           <motion.div
             key={activeService.video}

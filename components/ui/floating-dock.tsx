@@ -34,7 +34,7 @@ const FloatingDockMobile = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { title: string; icon: React.ReactNode; href?: string; onClick?: () => void }[];
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -65,13 +65,23 @@ const FloatingDockMobile = ({
                 }}
                 transition={{ delay: (items.length - 1 - idx) * 0.05 }}
               >
-                <Link
-                  href={item.href}
-                  key={item.title}
-                  className="h-12 w-12 rounded-2xl backdrop-blur-lg border border-white/10 flex items-center justify-center shadow-2xl"
-                >
-                  <div className="h-6 w-6 text-zinc-400">{item.icon}</div>
-                </Link>
+                {item.onClick ? (
+                  <button
+                    onClick={item.onClick}
+                    key={item.title}
+                    className="h-12 w-12 rounded-2xl backdrop-blur-lg border border-white/10 flex items-center justify-center shadow-2xl"
+                  >
+                    <div className="h-6 w-6 text-zinc-400">{item.icon}</div>
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href || "#"}
+                    key={item.title}
+                    className="h-12 w-12 rounded-2xl backdrop-blur-lg border border-white/10 flex items-center justify-center shadow-2xl"
+                  >
+                    <div className="h-6 w-6 text-zinc-400">{item.icon}</div>
+                  </Link>
+                )}
               </motion.div>
             ))}
           </motion.div>
@@ -94,7 +104,7 @@ const FloatingDockDesktop = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { title: string; icon: React.ReactNode; href?: string; onClick?: () => void }[];
   className?: string;
 }) => {
   let mouseX = useMotionValue(Infinity);

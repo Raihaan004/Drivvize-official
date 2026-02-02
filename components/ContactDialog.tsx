@@ -1,27 +1,53 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Phone, Mail, Send, Linkedin } from "lucide-react";
 import { teamMembers } from "@/lib/team-data";
 
 interface ContactDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  trigger?: React.ReactNode;
 }
 
-export function ContactDialog({ isOpen, onClose }: ContactDialogProps) {
+export function ContactDialog({ isOpen: externalIsOpen, onClose: externalOnClose, trigger }: ContactDialogProps) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+  const isControlled = externalIsOpen !== undefined;
+  const isOpen = isControlled ? externalIsOpen : internalIsOpen;
+
+  const handleOpen = () => {
+    if (!isControlled) {
+      setInternalIsOpen(true);
+    }
+  };
+
+  const handleClose = () => {
+    if (isControlled) {
+      externalOnClose?.();
+    } else {
+      setInternalIsOpen(false);
+    }
+  };
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-200 flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
-          />
+    <>
+      {trigger && (
+        <div onClick={handleOpen} className="cursor-pointer contents">
+          {trigger}
+        </div>
+      )}
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-200 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleClose}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+            />
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -90,7 +116,7 @@ export function ContactDialog({ isOpen, onClose }: ContactDialogProps) {
               {/* Right Side: Form */}
               <div className="flex-1 p-8 md:p-12 relative">
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/5"
                 >
                   <X size={18} />
@@ -148,6 +174,7 @@ export function ContactDialog({ isOpen, onClose }: ContactDialogProps) {
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 }

@@ -104,7 +104,7 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
         >
           <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full" />
           <Image 
-            src="/Drivvize_logo.jpeg" 
+            src="/Drivvi.png" 
             alt="Drivvize Logo" 
             width={224} 
             height={224}

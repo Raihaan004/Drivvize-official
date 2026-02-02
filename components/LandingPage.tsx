@@ -15,9 +15,11 @@ import { cn } from "@/lib/utils";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
-import { TypewriterEffect, TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
+import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import { FeaturesScroll } from "@/components/FeaturesScroll";
 import { WhyChooseUs } from "@/components/WhyChooseUs";
+import { teamMembers } from "@/lib/team-data";
+import { ContactDialog } from "@/components/ContactDialog";
 
 gsap.registerPlugin(ScrollTrigger, Observer);
 
@@ -188,83 +190,101 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
         if (animating || index === currentIndex) return;
         animating = true;
 
-        if (index === 0) {
-          // Hero
-          gsap.to(heroRef.current, {
-            opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power2.inOut"
-          });
-          gsap.to(".vision-section", {
-            y: "-100%", autoAlpha: 0, duration: 1.2, ease: "power2.inOut"
-          });
-          gsap.to(".why-choose-section", {
-            y: "-200%", autoAlpha: 0, duration: 1.2, ease: "power2.inOut",
-            onComplete: () => { animating = false; currentIndex = 0; }
-          });
-        } else if (index === 1) {
-          // Vision
-          visionPointIndex = -1;
-          gsap.to(heroRef.current, {
-            opacity: 0, filter: "blur(20px)", y: 100, scale: 0.9, duration: 1.2, ease: "power2.inOut"
-          });
-          gsap.to(".vision-section", {
-            y: "0%", autoAlpha: 1, duration: 1.2, ease: "power2.inOut"
-          });
-          gsap.to(".why-choose-section", {
-            y: "-100%", autoAlpha: 0, duration: 1.2, ease: "power2.inOut",
-            onComplete: () => {
-              currentIndex = 1; animating = false; updateVisionPoints(-1);
+        const sections = [".hero-section", ".vision-section", ".why-choose-section", ".leadership-section", ".cta-section"];
+        
+        const currentTarget = sections[currentIndex];
+        const targetSection = sections[index];
+
+        // Sequence: Hide current, show next
+        const tl = gsap.timeline({
+          onComplete: () => {
+            currentIndex = index;
+            animating = false;
+            if (index === 1) updateVisionPoints(-1);
+            
+            // Trigger internal animations for target section
+            if (index === 3) {
+              gsap.fromTo(".leadership-card", 
+                { y: 50, opacity: 0 },
+                { y: 0, opacity: 1, stagger: 0.1, duration: 0.8, ease: "power3.out" }
+              );
             }
-          });
-        } else if (index === 2) {
-          // Why Choose Us
-          gsap.to(".vision-section", {
-            y: "100%", autoAlpha: 0, duration: 1.2, ease: "power2.inOut"
-          });
-          gsap.to(".why-choose-section", {
-            y: "0%", autoAlpha: 1, duration: 1.2, ease: "power2.inOut",
-            onComplete: () => {
-              currentIndex = 2; animating = false;
+            if (index === 4) {
+              gsap.fromTo(".cta-text", 
+                { y: 30, opacity: 0 },
+                { y: 0, opacity: 1, stagger: 0.1, duration: 0.8, ease: "power3.out" }
+              );
             }
-          });
-        }
+          }
+        });
+
+        // Direction logic
+        const isMovingDown = index > currentIndex;
+        
+        tl.to(currentTarget, {
+          y: isMovingDown ? "-100%" : "100%",
+          scale: isMovingDown ? 0.9 : 1.1,
+          filter: "blur(10px)",
+          autoAlpha: 0,
+          duration: 1.2,
+          ease: "power2.inOut"
+        });
+
+        tl.fromTo(targetSection,
+          { 
+            y: isMovingDown ? "100%" : "-100%", 
+            scale: isMovingDown ? 1.1 : 0.9,
+            filter: "blur(10px)",
+            autoAlpha: 0 
+          },
+          { 
+            y: "0%", 
+            scale: 1,
+            filter: "blur(0px)",
+            autoAlpha: 1, 
+            duration: 1.2, 
+            ease: "power2.inOut"
+          }, 
+          "<" // Start at the same time as the first tween
+        );
       };
 
       Observer.create({
         target: window,
         type: "wheel,touch",
-        onUp: () => {
+        onDown: () => {
           if (!isIntroFinished || animating) return;
           
           if (currentIndex === 0) {
             gotoSection(1);
           } else if (currentIndex === 1) {
-            // In vision, scroll UP -> show next point
             if (visionPointIndex < totalVisionPoints - 1) {
               visionPointIndex++;
               updateVisionPoints(visionPointIndex);
             } else {
-              // Reached end of vision, go to Why Choose Us
               gotoSection(2);
             }
+          } else if (currentIndex < 4) {
+            gotoSection(currentIndex + 1);
           }
         },
-        onDown: () => {
+        onUp: () => {
           if (!isIntroFinished || animating) return;
 
-          if (currentIndex === 2) {
-            // In Why Choose Us, scroll DOWN -> back to vision
-            gotoSection(1);
-            // After entering vision from bottom, show last point
-            visionPointIndex = totalVisionPoints - 1;
-            // Delay a bit to let transition finish
-            setTimeout(() => updateVisionPoints(visionPointIndex), 1200);
-          } else if (currentIndex === 1) {
+          if (currentIndex === 1) {
             if (visionPointIndex > -1) {
               visionPointIndex--;
               updateVisionPoints(visionPointIndex);
             } else {
               gotoSection(0);
             }
+          } else if (currentIndex === 2) {
+            // Specialized transition for scrolling UP from Why Choose Us back to last vision point
+            gotoSection(1);
+            visionPointIndex = totalVisionPoints - 1;
+            setTimeout(() => updateVisionPoints(visionPointIndex), 1200);
+          } else if (currentIndex > 0) {
+            gotoSection(currentIndex - 1);
           }
         },
         tolerance: 10,
@@ -328,7 +348,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
           <div className="relative h-14 w-56">
             <div className="absolute inset-0 bg-blue-500/10 blur-2xl rounded-full" />
             <Image 
-              src="/Drivvize_logo.jpeg" 
+              src="/Drivvi.png" 
               alt="Logo" 
               fill 
               className="object-contain relative z-10 hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(56,189,248,0.6)]" 
@@ -340,7 +360,7 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
       {/* Sections Container */}
       <div className="relative main-sections-container h-screen overflow-hidden">
         {/* Hero Section */}
-        <section className="hero-section relative h-screen flex flex-col items-center justify-center px-8 text-center z-20">
+        <section className="hero-section absolute inset-0 flex flex-col items-center justify-center px-8 text-center z-20 overflow-hidden">
           <div className="absolute top-20 -left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute top-40 -right-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-[150px] pointer-events-none" />
 
@@ -389,6 +409,12 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
                 words="We are an Automotive Functional Safety Consultancy who provide high-quality services to meet the ISO 26262 needs of your organization. We use a holistic view to develop products that are not just safe, but revolutionary."
                 className="text-zinc-500 text-base md:text-lg leading-relaxed font-medium opacity-90"
               />
+            </div>
+
+            {/* Scroll Indicator */}
+            <div className="flex flex-col items-center gap-3 pt-12 hero-text opacity-0">
+              <span className="text-[10px] uppercase tracking-[0.4em] text-zinc-500 font-bold">Scroll to Explore</span>
+              <div className="w-px h-12 bg-linear-to-b from-blue-500 to-transparent animate-pulse" />
             </div>
           </div>
         </section>
@@ -459,6 +485,51 @@ export default function LandingPage({ isIntroFinished = true }: { isIntroFinishe
         {/* Why Choose Us Section */}
         <section className="why-choose-section h-screen flex flex-col items-center justify-center px-8 absolute top-0 left-0 w-full z-30 invisible overflow-hidden">
           <WhyChooseUs />
+        </section>
+
+        {/* Leadership Section */}
+        <section className="leadership-section h-screen flex flex-col items-center justify-center px-8 absolute top-0 left-0 w-full z-30 invisible overflow-hidden">
+          <div className="max-w-7xl mx-auto w-full">
+            <h2 className="text-4xl md:text-7xl lg:text-8xl font-black tracking-tighter text-zinc-100 uppercase italic mb-12 text-center leadership-title">
+              Our Leadership
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {teamMembers.map((member, i) => (
+                <div key={i} className="leadership-card group relative overflow-hidden rounded-2xl bg-slate-900/40 border border-white/10 p-6 backdrop-blur-md transition-all duration-500 hover:border-blue-500/50">
+                  <div className="relative h-64 w-full mb-6 overflow-hidden rounded-xl">
+                     <Image src={member.image} alt={member.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                     <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 to-transparent" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-1">{member.name}</h3>
+                  <p className="text-blue-400 font-semibold mb-4 text-sm tracking-wider uppercase">{member.role}</p>
+                  <p className="text-zinc-400 text-sm leading-relaxed">{member.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA Section */}
+        <section className="cta-section h-screen flex flex-col items-center justify-center px-8 absolute top-0 left-0 w-full z-30 invisible overflow-hidden">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <h2 className="text-5xl md:text-8xl font-black tracking-tighter text-white uppercase italic cta-text">
+              Ready to <br />
+              <Cover>Accelerate</Cover> Safety?
+            </h2>
+            <p className="text-zinc-400 text-xl md:text-2xl font-medium cta-text">
+              Partner with the world leaders in automotive safety engineering.
+            </p>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-8 cta-text">
+              <ContactDialog trigger={
+                <button className="px-12 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-lg transition-all duration-300 shadow-[0_0_30px_rgba(37,99,235,0.4)] hover:shadow-[0_0_50px_rgba(37,99,235,0.6)] hover:scale-105">
+                  Get In Touch
+                </button>
+              } />
+              <a href="/services" className="px-12 py-5 border border-white/20 hover:bg-white/10 text-white rounded-full font-bold text-lg transition-all duration-300 backdrop-blur-sm">
+                View Services
+              </a>
+            </div>
+          </div>
         </section>
       </div>
     </div>

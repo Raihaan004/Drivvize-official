@@ -18,7 +18,7 @@ export function GlobalNavigation() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const pathname = usePathname();
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     // If we're not on the landing page, reveal navigation immediately
     // On landing page, LandingPage.tsx handles the staged reveal after intro
     if (pathname !== "/") {
