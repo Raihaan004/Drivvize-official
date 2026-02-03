@@ -5,10 +5,10 @@ import { FloatingDock } from "@/components/ui/floating-dock";
 import { HomeIcon } from "@/components/icons/home";
 import { UsersIcon } from "@/components/icons/users";
 import { CircleHelpIcon } from "@/components/icons/circle-help";
-import { ArchiveIcon } from "@/components/icons/archive";
+import { HandGearIcon } from "@/components/icons/hand-gear";
 import { FileTextIcon } from "@/components/icons/file-text";
 import { DownloadIcon } from "@/components/icons/download";
-import { PartyPopperIcon } from "@/components/icons/party-popper";
+import { BriefcaseIcon } from "@/components/icons/briefcase";
 import { MailCheckIcon } from "@/components/icons/mail-check";
 import { ContactDialog } from "@/components/ContactDialog";
 import { usePathname } from "next/navigation";
@@ -59,7 +59,7 @@ export function GlobalNavigation() {
             },
             {
               title: "Services",
-              icon: <ArchiveIcon className={`h-full w-full ${pathname === "/services" ? "text-blue-400" : "text-zinc-400 group-hover:text-white"} transition-colors`} size="100%" />,
+              icon: <HandGearIcon className={`h-full w-full ${pathname === "/services" ? "text-blue-400" : "text-zinc-400 group-hover:text-white"} transition-colors`} size="100%" />,
               href: "/services",
             },
             {
@@ -74,7 +74,7 @@ export function GlobalNavigation() {
             },
             {
               title: "Careers",
-              icon: <PartyPopperIcon className={`h-full w-full ${pathname === "/careers" ? "text-blue-400" : "text-zinc-400 group-hover:text-white"} transition-colors`} size="100%" />,
+              icon: <BriefcaseIcon className={`h-full w-full ${pathname === "/careers" ? "text-blue-400" : "text-zinc-400 group-hover:text-white"} transition-colors`} size="100%" />,
               href: "/careers",
             },
             {
