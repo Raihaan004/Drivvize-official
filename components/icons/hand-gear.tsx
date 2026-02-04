@@ -56,7 +56,7 @@ const HandGearIcon = forwardRef<HandGearIconHandle, HandGearIconProps>(
         if (!isControlledRef.current) {
           controls.start("animate");
         } else {
-          onMouseEnter?.(e);
+          (onMouseEnter as any)?.(e);
         }
       },
       [controls, onMouseEnter]
@@ -67,14 +67,14 @@ const HandGearIcon = forwardRef<HandGearIconHandle, HandGearIconProps>(
         if (!isControlledRef.current) {
           controls.start("normal");
         } else {
-          onMouseLeave?.(e);
+          (onMouseLeave as any)?.(e);
         }
       },
       [controls, onMouseLeave]
     );
 
     return (
-      <svg
+      <motion.svg
         xmlns="http://www.w3.org/2000/svg"
         width={size}
         height={size}
@@ -125,7 +125,7 @@ const HandGearIcon = forwardRef<HandGearIconHandle, HandGearIconProps>(
             variants={handVariants}
             animate={controls}
           />
-        </svg>
+        </motion.svg>
     );
   }
 );

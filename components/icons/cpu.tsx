@@ -52,22 +52,22 @@ const CpuIcon = forwardRef<CpuIconHandle, CpuIconProps>(
     });
 
     const handleMouseEnter = useCallback(
-      (e: React.MouseEvent<SVGSVGElement>) => {
+      (e: React.MouseEvent<HTMLDivElement>) => {
         if (!isControlledRef.current) {
           controls.start("animate");
         } else {
-          onMouseEnter?.(e);
+          (onMouseEnter as any)?.(e);
         }
       },
       [controls, onMouseEnter]
     );
 
     const handleMouseLeave = useCallback(
-      (e: React.MouseEvent<SVGSVGElement>) => {
+      (e: React.MouseEvent<HTMLDivElement>) => {
         if (!isControlledRef.current) {
           controls.start("normal");
         } else {
-          onMouseLeave?.(e);
+          (onMouseLeave as any)?.(e);
         }
       },
       [controls, onMouseLeave]
@@ -82,7 +82,7 @@ const CpuIcon = forwardRef<CpuIconHandle, CpuIconProps>(
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <svg
+        <motion.svg
           xmlns="http://www.w3.org/2000/svg"
           width={size}
           height={size}
@@ -152,7 +152,7 @@ const CpuIcon = forwardRef<CpuIconHandle, CpuIconProps>(
             variants={lineVariants}
             animate={controls}
           />
-        </svg>
+        </motion.svg>
       </div>
     );
   }
